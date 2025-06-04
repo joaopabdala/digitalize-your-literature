@@ -5,7 +5,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('main');
 });
 
     Route::get('register', function (){return view('auth.register');})->name('register');
@@ -16,4 +16,4 @@ Route::get('/', function () {
     Route::get('dashboard', function (){return 'dashboard';})->name('dashboard');
 
 Route::post('digitalize', [DigitalizerController::class, 'digitalizes'])->name('digitalize');
-Route::post('digitalize/pdf-download/{digitization}', [DigitalizerController::class, 'downloadPDF'])->name('digitalize.pdf');
+Route::get('digitalize/pdf-download/{digitalization}', [DigitalizerController::class, 'downloadPDF'])->name('digitalize.pdf');
