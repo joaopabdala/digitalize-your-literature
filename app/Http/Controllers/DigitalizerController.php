@@ -87,6 +87,9 @@ class DigitalizerController extends Controller
 
     public function downloadPDF(Digitalization $digitalization)
     {
+        if (!auth()->user()->can('download', $digitalization)) {
+            abort(403, 'Unauthorized');
+        }
 
         try {
             $transcriptionFilePath = $digitalization->transcription_file_path;

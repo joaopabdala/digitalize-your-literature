@@ -25,4 +25,5 @@
 @include('layouts.session-message')
 @yield('content')
 </body>
+@yield('scripts')
 </html>

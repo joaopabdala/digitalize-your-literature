@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\DigitalizerController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('main');
+    return view('index');
 });
 
     Route::get('register', function (){return view('auth.register');})->name('register');
@@ -13,7 +14,7 @@ Route::get('/', function () {
     Route::get('login', function (){return view('auth.login');})->name('login');
     Route::post('login', [UserController::class, 'login'])->name('login');
     Route::post('logout', [UserController::class, 'logout'])->name('logout');
-    Route::get('dashboard', function (){return 'dashboard';})->name('dashboard');
+    Route::get('dashboard', [UserDashboard::class, 'index'])->name('dashboard');
 
 Route::post('digitalize', [DigitalizerController::class, 'digitalizes'])->name('digitalize');
 Route::get('digitalize/pdf-download/{digitalization}', [DigitalizerController::class, 'downloadPDF'])->name('digitalize.pdf');

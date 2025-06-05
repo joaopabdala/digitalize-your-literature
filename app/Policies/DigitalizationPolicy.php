@@ -13,9 +13,9 @@ class DigitalizationPolicy
      * Determine whether the user can view any models.
      */
 
-    public function download(Digitalization $digitalization)
+    public function download(User $user, Digitalization $digitalization): bool
     {
-        return auth()->user()->id === $digitalization->user_id;
+        return $user->id === $digitalization->user_id;
     }
 
 }

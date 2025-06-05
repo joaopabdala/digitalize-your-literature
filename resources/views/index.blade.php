@@ -1,8 +1,8 @@
 @extends('layouts.main-layout')
 
 @section('content')
-    <div class="flex justify-center items-center min-h-screen bg-gray-100">
-        <form action="/digitalize" method="POST" enctype="multipart/form-data"
+    <div class="flex justify-center items-center min-h-screen bg-gray-100 relative">
+        <form id="upload-form" action="/digitalize" method="POST" enctype="multipart/form-data"
               class="bg-white p-8 rounded-lg shadow-md w-full max-w-md space-y-6">
             @csrf
             @method('post')
@@ -20,6 +20,20 @@
                 Submit
             </button>
         </form>
-    </div>
 
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="hidden fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
+            <div class="text-xl font-semibold text-blue-700 animate-pulse">
+                Processando arquivo, por favor aguarde...
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function () {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        });
+    </script>
 @endsection
