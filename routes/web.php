@@ -7,15 +7,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('index');
-});
+})->name('index');
 
-    Route::get('register', function (){return view('auth.register');})->name('register');
-    Route::post('register', [UserController::class, 'store'])->name('register');
-    Route::get('login', function (){return view('auth.login');})->name('login');
-    Route::post('login', [UserController::class, 'login'])->name('login');
-    Route::post('logout', [UserController::class, 'logout'])->name('logout');
+Route::get('register', function () {
+    return view('auth.register');
+})->name('register');
+Route::post('register', [UserController::class, 'store'])->name('register');
+Route::get('login', function () {
+    return view('auth.login');
+})->name('login');
+Route::post('login', [UserController::class, 'login'])->name('login');
+Route::post('logout', [UserController::class, 'logout'])->name('logout');
 Route::get('dashboard', [UserDashboard::class, 'index'])->name('dashboard');
 Route::get('dashboard/{digitalization}', [UserDashboard::class, 'show'])->name('dashboard.digitalization');
 
 Route::post('digitalize', [DigitalizerController::class, 'digitalizes'])->name('digitalize');
 Route::get('digitalize/pdf-download/{digitalization}', [DigitalizerController::class, 'downloadPDF'])->name('digitalize.pdf');
+Route::delete('digitalize/{digitalization}', [DigitalizerController::class, 'destroy'])->name('digitalize.destroy');

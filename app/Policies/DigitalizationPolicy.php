@@ -23,4 +23,9 @@ class DigitalizationPolicy
         return $user->id === $digitalization->user_id;
     }
 
+    public function destroy(User $user, Digitalization $digitalization): bool
+    {
+        return $user->id === $digitalization->user_id;
+    }
+
 }
