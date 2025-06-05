@@ -72,7 +72,7 @@ class DigitalizerController extends Controller
             $jsonOutputString = json_encode($parsedContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
             $jsonFileName = $file->hashName() . '.json';
             $transcriptionFilePath = 'digitalizations/json_outputs/' . $jsonFileName;
-            Storage::put($transcriptionFilePath, $jsonOutputString);
+            Storage::disk('public')->put($transcriptionFilePath, $jsonOutputString);
 
 
             $digitalization = $user->digitalizations()->create([
