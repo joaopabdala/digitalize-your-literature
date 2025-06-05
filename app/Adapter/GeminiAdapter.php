@@ -2,6 +2,7 @@
 
 namespace App\Adapter;
 
+use App\Actions\ExtractPlaintTextFromJsonAction;
 use App\Interfaces\DigitalizesInterface;
 use App\Services\GeminiService;
 use Illuminate\Support\Facades\Log;
@@ -41,23 +42,12 @@ class GeminiAdapter implements DigitalizesInterface
         return back()->withErrors(['response_structure_error' => 'A resposta do Gemini não veio no formato esperado.']);
     }
 
-    public function formatJsonToHTMLanPlainText($parsedContent)
+    public function formatJsonToHTMLandPlainText($parsedContent)
     {
         if (isset($parsedContent['page'])) {
             $pageData = $parsedContent['page'];
 
-
-            $plainText = '';
-            if (!empty($pageData['headerTitle'])) $plainText .= $pageData['headerTitle'] . "\n\n";
-            if (!empty($pageData['title'])) $plainText .= $pageData['title'] . "\n";
-            if (!empty($pageData['subtitle'])) $plainText .= $pageData['subtitle'] . "\n\n";
-            if (!empty($pageData['paragraphs']) && is_array($pageData['paragraphs'])) {
-                foreach ($pageData['paragraphs'] as $paragraph) {
-                    $plainText .= str_replace('\t', "\t", $paragraph) . "\n\n";
-                }
-            }
-            if (!empty($pageData['pageNumber'])) $plainText .= "Página: " . $pageData['pageNumber'] . "\n";
-            $plainText = trim($plainText);
+            $plainText = (new ExtractPlaintTextFromJsonAction)->execute($pageData);
 
             return ['plainText' => $plainText, 'pageData' => $pageData];
         }
