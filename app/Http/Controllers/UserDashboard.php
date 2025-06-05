@@ -32,9 +32,8 @@ class UserDashboard extends Controller
 
         $imageUrl = Storage::url($digitalization->original_file_path);
         $transcriptionPath = $digitalization->transcription_file_path;
-        $jsonContent = Storage::get($transcriptionPath);
+        $jsonContent = Storage::disk('public')->get($transcriptionPath);
         $pageData = json_decode($jsonContent, true);
-
 
         $pageData = $pageData['page'];
         $plainText = (new ExtractPlaintTextFromJsonAction)->execute($pageData);
