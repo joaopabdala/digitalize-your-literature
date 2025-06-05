@@ -8,7 +8,7 @@
             @if($digitalizations->isEmpty())
                 <div class="bg-white p-8 rounded-lg shadow-md text-center">
                     <p class="text-xl text-gray-600 mb-4">You don't have any digitalizations yet.</p>
-                    <a href="/digitalize"
+                    <a href="{{route('index')}}"
                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Digitize a new document
                     </a>
@@ -63,3 +63,4 @@
         </div>
     </div>
 @endsection
+
