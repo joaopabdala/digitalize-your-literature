@@ -53,15 +53,11 @@
             </div>
 
             @auth
-                <form method="POST" action="{{ route('digitalize.pdf') }}">
-                    @csrf
-                    <input type="hidden" name="digitization" value="{{ $digitizationId }}">
-                    <button
-                        type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-200 flex items-center">
-                        Download as PDF
-                    </button>
-                </form>
+                <a href="{{ route('digitalize.pdf', ['digitalization' => $digitalization->id]) }}"
+                   class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-200 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2z"></path></svg>
+                    Download as PDF
+                </a>
             @endauth
 
             {{-- Hidden area for plain text copy --}}

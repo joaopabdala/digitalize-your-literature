@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Factories\DigitalizesFactory;
 use App\Http\Requests\DigitalizerRequest;
 use App\Models\Digitalization;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -63,7 +64,7 @@ class DigitalizerController extends Controller
             return back()->with(['message' => 'Ocorreu um erro inesperado: ' . $e->getMessage(), 'type' => 'error']);
         }
 
-        $digitizationId = null;
+        $digitalization = null;
         if (auth()->check()) {
             $user = auth()->user();
             $originalFilePath = $file->storeAs('digitalizations', $file->hashName(), 'public');
@@ -74,20 +75,53 @@ class DigitalizerController extends Controller
             Storage::put($transcriptionFilePath, $jsonOutputString);
 
 
-            $digitization = $user->digitalizations()->create([
+            $digitalization = $user->digitalizations()->create([
                 'original_file_path' => $originalFilePath,
                 'transcription_file_path' => $transcriptionFilePath
             ]);
-            $digitizationId = $digitization->id;
             $imageUrl = Storage::url($originalFilePath);
         }
 
-        return view('scan-result', compact('pageData', 'plainText', 'imageUrl', 'digitizationId'));
+        return view('scan-result', compact('pageData', 'plainText', 'imageUrl', 'digitalization'));
     }
 
-    public function downloadPDF(Digitalization $digitization)
+    public function downloadPDF(Digitalization $digitalization)
     {
-        return ('$digitization');
-    }
+        if (!auth()->user()->can('download', $digitalization)) {
+            abort(403, 'Unauthorized');
+        }
 
+        try {
+            $transcriptionFilePath = $digitalization->transcription_file_path;
+
+            if (!Storage::exists($transcriptionFilePath)) {
+                Log::warning('Arquivo de transcrição JSON não encontrado para PDF: ' . $transcriptionFilePath);
+                abort(404, 'PDF não pode ser gerado: Arquivo de transcrição não encontrado.');
+            }
+            $jsonContent = Storage::get($transcriptionFilePath);
+
+            $parsedContent = json_decode($jsonContent, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::error('Erro ao decodificar JSON do arquivo de transcrição para PDF: ' . json_last_error_msg());
+                abort(500, 'PDF não pode ser gerado: Erro de leitura dos dados.');
+            }
+
+            $pageData = $parsedContent['page'] ?? [];
+
+            $html = view('pdf.document_template', compact('pageData'))->render();
+
+            $pdf = Pdf::loadHtml($html);
+
+            $baseFileName = pathinfo($transcriptionFilePath, PATHINFO_FILENAME); // Pega 'gemini_response_HASH'
+            $pdfFileName = str_replace('gemini_response_', 'documento_', $baseFileName) . '.pdf';
+
+
+            return $pdf->download($pdfFileName);
+
+        } catch (Exception $e) {
+            Log::error('Erro ao gerar PDF: ' . $e->getMessage());
+            return back()->withErrors(['pdf_error' => 'Não foi possível gerar o PDF: ' . $e->getMessage()]);
+        }
+    }
 }
