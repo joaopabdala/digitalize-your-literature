@@ -26,13 +26,13 @@
 </head>
 <body>
 @if(!empty($pageData['headerTitle']))
-    <h1>{{ htmlspecialchars($pageData['headerTitle']) }}</h1>
+    <h1>{!! $pageData['headerTitle'] !!}</h1>
 @endif
 @if(!empty($pageData['title']))
-    <h2>{{ htmlspecialchars($pageData['title']) }}</h2>
+    <h2>{!! $pageData['title'] !!}</h2>
 @endif
 @if(!empty($pageData['subtitle']))
-    <h3>{{ htmlspecialchars($pageData['subtitle']) }}</h3>
+    <h3>{!! $pageData['subtitle'] !!}</h3>
 @endif
 
 @if(isset($pageData['paragraphs']) && is_array($pageData['paragraphs']))
@@ -40,12 +40,12 @@
         {{-- Aqui usamos htmlspecialchars para segurança, pois o texto vem do JSON. --}}
         {{-- str_replace('\t', "\t", ...) é para garantir que tabulações sejam tabulações reais no texto,
              e white-space: pre-wrap no CSS cuida da renderização. --}}
-        <p>{{ htmlspecialchars(str_replace('\t', "\t", $paragraph)) }}</p>
+        <p>{!! str_replace('\t', "\t", $paragraph) !!}</p>
     @endforeach
 @endif
 
 @if(!empty($pageData['pageNumber']))
-    <div class="page-number">Página: {{ htmlspecialchars($pageData['pageNumber']) }}</div>
+    <div class="page-number">Página: {{ $pageData['pageNumber'] !!}</div>
 @endif
 </body>
 </html>

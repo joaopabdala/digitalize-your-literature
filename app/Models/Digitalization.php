@@ -12,7 +12,8 @@ class Digitalization extends Model
     protected $fillable = [
         'original_file_path',
         'transcription_file_path',
-        'user_id'
+        'user_id',
+        'title'
     ];
 
     public function user(): BelongsTo

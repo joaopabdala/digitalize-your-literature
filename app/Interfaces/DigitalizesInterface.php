@@ -6,5 +6,5 @@ interface DigitalizesInterface
 {
     public function returnJson($file);
 
-    public function formatJsonToHTMLanPlainText($parsedContent);
+    public function formatJsonToHTMLandPlainText($parsedContent);
 }

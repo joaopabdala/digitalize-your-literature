@@ -18,4 +18,9 @@ class DigitalizationPolicy
         return $user->id === $digitalization->user_id;
     }
 
+    public function view(User $user, Digitalization $digitalization): bool
+    {
+        return $user->id === $digitalization->user_id;
+    }
+
 }

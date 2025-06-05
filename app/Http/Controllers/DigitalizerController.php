@@ -54,7 +54,7 @@ class DigitalizerController extends Controller
 //        "pageNumber" => "127"
 //    ]
 //];
-            $formatted = $digitalizer->formatJsonToHTMLanPlainText($parsedContent);
+            $formatted = $digitalizer->formatJsonToHTMLandPlainText($parsedContent);
             $pageData = $formatted['pageData'];
             $plainText = $formatted['plainText'];
 
@@ -77,7 +77,8 @@ class DigitalizerController extends Controller
 
             $digitalization = $user->digitalizations()->create([
                 'original_file_path' => $originalFilePath,
-                'transcription_file_path' => $transcriptionFilePath
+                'transcription_file_path' => $transcriptionFilePath,
+                'title' => $pageData['title'] ?? 'undefined title',
             ]);
             $imageUrl = Storage::url($originalFilePath);
         }
@@ -113,7 +114,7 @@ class DigitalizerController extends Controller
 
             $pdf = Pdf::loadHtml($html);
 
-            $baseFileName = pathinfo($transcriptionFilePath, PATHINFO_FILENAME); // Pega 'gemini_response_HASH'
+            $baseFileName = pathinfo($transcriptionFilePath, PATHINFO_FILENAME);
             $pdfFileName = str_replace('gemini_response_', 'documento_', $baseFileName) . '.pdf';
 
 
