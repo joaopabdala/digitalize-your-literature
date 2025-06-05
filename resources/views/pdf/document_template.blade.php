@@ -2,11 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Documento Digitalizado - Página {{ $pageData['pageNumber'] ?? '' }}</title>
+    <title>Digitalized Document - Page {{ $pageData['pageNumber'] ?? '' }}</title>
     <style>
         /* Estilos CSS para o PDF */
         body {
-            font-family: 'DejaVu Sans', sans-serif; /* Uma fonte que suporte caracteres UTF-8 */
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
             margin: 2cm;
             font-size: 10pt;
         }
@@ -37,15 +38,12 @@
 
 @if(isset($pageData['paragraphs']) && is_array($pageData['paragraphs']))
     @foreach($pageData['paragraphs'] as $paragraph)
-        {{-- Aqui usamos htmlspecialchars para segurança, pois o texto vem do JSON. --}}
-        {{-- str_replace('\t', "\t", ...) é para garantir que tabulações sejam tabulações reais no texto,
-             e white-space: pre-wrap no CSS cuida da renderização. --}}
-        <p>{!! str_replace('\t', "\t", $paragraph) !!}</p>
+        <p>{!! nl2br(e(str_replace(["\\t"], "\t", $paragraph))) !!}</p>
     @endforeach
 @endif
 
 @if(!empty($pageData['pageNumber']))
-    <div class="page-number">Página: {{ $pageData['pageNumber'] !!}</div>
+    <div class="page-number">Page: {!! $pageData['pageNumber'] !!}</div>
 @endif
 </body>
 </html>
