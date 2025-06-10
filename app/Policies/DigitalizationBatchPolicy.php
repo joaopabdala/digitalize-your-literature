@@ -16,9 +16,13 @@ class DigitalizationBatchPolicy
         return $user->id === $digitalizationBatch->user_id;
     }
 
-    public function view(User $user, DigitalizationBatch $digitalizationBatch): bool
+    public function view(?User $user, DigitalizationBatch $digitalizationBatch): bool
     {
-        return $user->id === $digitalizationBatch->user_id;
+        if (is_null($digitalizationBatch->user_id)) {
+            return true;
+        }
+
+        return !is_null($user) && $user->id === $digitalizationBatch->user_id;
     }
 
     public function destroy(User $user, DigitalizationBatch $digitalizationBatch): bool

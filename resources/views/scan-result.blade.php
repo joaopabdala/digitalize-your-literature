@@ -86,8 +86,6 @@
                 @endauth
             </div>
 
-            @dump($pages)
-            {{-- Hidden area for plain text copy --}}
 
             {{-- Back Button --}}
             <div class="text-center">
