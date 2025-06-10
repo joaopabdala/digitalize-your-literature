@@ -6,9 +6,6 @@ namespace App\Actions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Imagick;
-use function is_array;
-use function str_replace;
-use function trim;
 
 class ConvertPDFtoImageAction
 {

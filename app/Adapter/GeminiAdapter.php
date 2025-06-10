@@ -7,18 +7,18 @@ use App\Interfaces\DigitalizesInterface;
 use App\Services\GeminiService;
 use Illuminate\Support\Facades\Log;
 use function back;
-use function is_array;
 use function json_decode;
 use function str_replace;
-use function trim;
 
 class GeminiAdapter implements DigitalizesInterface
 {
     public $service;
+
     public function __construct()
     {
         $this->service = (new GeminiService);
     }
+
     public function returnJson($file)
     {
         $response = $this->service->returnJson($file);
@@ -34,16 +34,16 @@ class GeminiAdapter implements DigitalizesInterface
             return back()->with(['message' => 'A resposta do Gemini não veio no formato esperado.', 'type' => 'error']);
         }
 
-            $jsonString = str_replace(['```json', '```', "\n"], '', $text);
+        $jsonString = str_replace(['```json', '```', "\n"], '', $text);
 
-            $parsedContent = json_decode($jsonString, true);
+        $parsedContent = json_decode($jsonString, true);
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::error('Erro ao decodificar JSON da resposta do Gemini: ' . json_last_error_msg() . ' - String JSON: ' . $jsonString);
-                return back()->with(['message' => 'Erro ao interpretar a resposta do serviço.', 'type' => 'error']);
-            }
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            Log::error('Erro ao decodificar JSON da resposta do Gemini: ' . json_last_error_msg() . ' - String JSON: ' . $jsonString);
+            return back()->with(['message' => 'Erro ao interpretar a resposta do serviço.', 'type' => 'error']);
+        }
 
-            return $parsedContent;
+        return $parsedContent;
     }
 
     public function formatJsonToHTMLandPlainText($parsedContent)

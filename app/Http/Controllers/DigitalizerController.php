@@ -2,32 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\ConvertPDFtoImageAction;
 use App\Actions\MountPagesDataFromDigitalizationBatch;
-use App\Factories\DigitalizesFactory;
-use App\Http\Requests\DigitalizerRequest;
 use App\Models\DigitalizationBatch;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use function abort;
-use function array_merge;
 use function auth;
 use function back;
 use function compact;
-use function json_encode;
-use function now;
 use function pathinfo;
 use function redirect;
-use function round;
 use function str_replace;
-use function uniqid;
 use function view;
-use const JSON_PRETTY_PRINT;
-use const JSON_UNESCAPED_UNICODE;
 use const PATHINFO_FILENAME;
 
 class DigitalizerController extends Controller

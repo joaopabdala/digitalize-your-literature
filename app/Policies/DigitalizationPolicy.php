@@ -4,8 +4,6 @@ namespace App\Policies;
 
 use App\Models\Digitalization;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
-use function auth;
 
 class DigitalizationPolicy
 {

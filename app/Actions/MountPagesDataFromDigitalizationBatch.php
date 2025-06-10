@@ -5,10 +5,7 @@ namespace App\Actions;
 
 use App\Models\DigitalizationBatch;
 use Illuminate\Support\Facades\Storage;
-use function is_array;
 use function json_decode;
-use function str_replace;
-use function trim;
 
 class MountPagesDataFromDigitalizationBatch
 {

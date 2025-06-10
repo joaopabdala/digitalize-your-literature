@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\DigitalizationBatch;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 use function is_null;
 
 class DigitalizationBatchPolicy
@@ -14,7 +13,7 @@ class DigitalizationBatchPolicy
      */
     public function download(User $user, DigitalizationBatch $digitalizationBatch): bool
     {
-        if(is_null($digitalizationBatch->user_id) && auth()->check()){
+        if (is_null($digitalizationBatch->user_id) && auth()->check()) {
             return true;
         }
         return $user->id === $digitalizationBatch->user_id;

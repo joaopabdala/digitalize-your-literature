@@ -7,7 +7,6 @@ use App\Factories\DigitalizesFactory;
 use App\Http\Requests\DigitalizerRequest;
 use App\Models\DigitalizationBatch;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;

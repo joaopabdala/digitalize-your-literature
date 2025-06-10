@@ -2,18 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\ExtractPlaintTextFromJsonAction;
 use App\Actions\MountPagesDataFromDigitalizationBatch;
-use App\Models\Digitalization;
 use App\Models\DigitalizationBatch;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use function abort;
 use function auth;
 use function compact;
-use function is_array;
-use function str_replace;
-use function trim;
 use function view;
 
 class UserDashboard extends Controller
