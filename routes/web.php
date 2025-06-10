@@ -19,8 +19,8 @@ Route::get('login', function () {
 Route::post('login', [UserController::class, 'login'])->name('login');
 Route::post('logout', [UserController::class, 'logout'])->name('logout');
 Route::get('dashboard', [UserDashboard::class, 'index'])->name('dashboard');
-Route::get('dashboard/{digitalization}', [UserDashboard::class, 'show'])->name('dashboard.digitalization');
+Route::get('dashboard/{digitalizationBatch}', [UserDashboard::class, 'show'])->name('dashboard.digitalizationBatch');
 
 Route::post('digitalize', [DigitalizerController::class, 'digitalizes'])->name('digitalize');
-Route::get('digitalize/pdf-download/{digitalization}', [DigitalizerController::class, 'downloadPDF'])->name('digitalize.pdf');
-Route::delete('digitalize/{digitalization}', [DigitalizerController::class, 'destroy'])->name('digitalize.destroy');
+Route::get('digitalize/pdf-download/{digitalizationBatch}', [DigitalizerController::class, 'downloadPDF'])->name('digitalize.pdf');
+Route::delete('digitalize/{digitalizationBatch}', [DigitalizerController::class, 'destroy'])->name('digitalize.destroy');

@@ -5,7 +5,7 @@
         <div class="max-w-7xl mx-auto">
             <h1 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">My Digitalizations</h1>
 
-            @if($digitalizations->isEmpty())
+            @if($digitalizationBatches->isEmpty())
                 <div class="bg-white p-8 rounded-lg shadow-md text-center">
                     <p class="text-xl text-gray-600 mb-4">You don't have any digitalizations yet.</p>
                     <a href="{{route('index')}}"
@@ -15,18 +15,18 @@
                 </div>
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    @foreach($digitalizations as $digitalization)
+                    @foreach($digitalizationBatches as $digitalizationBatch)
                         <div
                             class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-xl">
-                            <a href="{{ route('dashboard.digitalization', ['digitalization' => $digitalization->id]) }}"
+                            <a href="{{ route('dashboard.digitalizationBatch', ['digitalizationBatch' => $digitalizationBatch->id]) }}"
                                class="block">
                                 <div
                                     class="relative h-48 w-full bg-gray-200 flex items-center justify-center overflow-hidden">
                                     {{-- Checks if the image exists and displays it --}}
-                                    @if($digitalization->original_file_path)
+                                    @if($digitalizationBatch->getImageUrlCover())
                                         {{-- Uses Storage::url() to get the public URL of the image stored in storage --}}
-                                        <img src="{{ Storage::url($digitalization->original_file_path) }}"
-                                             alt="Digitized Document - {{ $digitalization->title ?? 'Untitled' }}"
+                                        <img src="{{ Storage::url($digitalizationBatch->getImageUrlCover()) }}"
+                                             alt="Digitized Document - {{ $digitalizationBatch->title ?? 'Untitled' }}"
                                              class="object-cover w-full h-full">
                                     @else
                                         {{-- Placeholder if no image is available --}}
@@ -40,12 +40,12 @@
                                 </div>
                                 <div class="p-5">
                                     <h3 class="text-xl font-semibold text-gray-800 mb-2 truncate">
-                                        {{ $digitalization->title ?? ($digitalization->original_file_path ? pathinfo($digitalization->original_file_path, PATHINFO_FILENAME) : 'Untitled Document') }}
+                                        {{ $digitalizationBatch->title ?? ($digitalizationBatch->original_file_path ? pathinfo($digitalizationBatch->original_file_path, PATHINFO_FILENAME) : 'Untitled Document') }}
                                     </h3>
                                     <p class="text-sm text-gray-600 mb-3 line-clamp-2">
                                         {{-- You can add a description or a text snippet here if available --}}
-                                        @if($digitalization->created_at)
-                                            Digitized on: {{ $digitalization->created_at->format('d/m/Y H:i') }}
+                                        @if($digitalizationBatch->created_at)
+                                            Digitized on: {{ $digitalizationBatch->created_at->format('d/m/Y H:i') }}
                                         @else
                                             No description available.
                                         @endif
@@ -57,7 +57,7 @@
                     @endforeach
                 </div>
                 <div class="mt-8">
-                    {{$digitalizations->links()}}
+                    {{$digitalizationBatches->links()}}
                 </div>
             @endif
         </div>
