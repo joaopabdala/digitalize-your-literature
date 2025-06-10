@@ -23,10 +23,18 @@ class GeminiAdapter implements DigitalizesInterface
     {
         $response = $this->service->returnJson($file);
 
-        if(isset($response['candidates'][0]['content']['parts'][0]['text'])){
-            $rawGeminiOutputText = $response['candidates'][0]['content']['parts'][0]['text'];
+        if ($response instanceof \Illuminate\Http\JsonResponse) {
+            $response = $response->getData(true);
+        }
 
-            $jsonString = str_replace(['```json', '```', "\n"], '', $rawGeminiOutputText);
+        $text = data_get($response, 'candidates.0.content.parts.0.text');
+        if (!$text) {
+            Log::warning('A resposta do Gemini não contém a estrutura de texto esperada.', ['response' => $response]);
+
+            return back()->with(['message' => 'A resposta do Gemini não veio no formato esperado.', 'type' => 'error']);
+        }
+
+            $jsonString = str_replace(['```json', '```', "\n"], '', $text);
 
             $parsedContent = json_decode($jsonString, true);
 
@@ -36,10 +44,6 @@ class GeminiAdapter implements DigitalizesInterface
             }
 
             return $parsedContent;
-        }
-
-        Log::warning('A resposta do Gemini não contém a estrutura de texto esperada.');
-        return back()->withErrors(['response_structure_error' => 'A resposta do Gemini não veio no formato esperado.']);
     }
 
     public function formatJsonToHTMLandPlainText($parsedContent)
