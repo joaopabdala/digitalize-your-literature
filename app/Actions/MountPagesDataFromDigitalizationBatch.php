@@ -14,7 +14,7 @@ class MountPagesDataFromDigitalizationBatch
 {
     public function execute(DigitalizationBatch $digitalizationBatch)
     {
-        foreach ($digitalizationBatch->digitalizations->sortByDesc('id') as $digitalization) {
+        foreach ($digitalizationBatch->digitalizations as $digitalization) {
             $imageUrl = Storage::url($digitalization->original_file_path);
             $transcriptionPath = $digitalization->transcription_file_path;
             $jsonContent = Storage::disk('public')->get($transcriptionPath);

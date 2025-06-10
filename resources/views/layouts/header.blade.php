@@ -13,12 +13,13 @@
                     <li><a href="{{ route('register') }}" class="hover:text-gray-300 transition duration-300 ease-in-out">Register</a></li>
                 @else
                     <li><a href="{{ route('dashboard') }}" class="hover:text-gray-300 transition duration-300 ease-in-out">Dashboard</a></li>
-                    <li>
+                    <li >
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="hover:text-gray-300 transition duration-300 ease-in-out">Logout</button>
+                            <button type="submit" class=" cursor-pointer hover:text-gray-300 transition duration-300 ease-in-out">Logout</button>
                         </form>
                     </li>
+
                 @endguest
             </ul>
         </nav>
