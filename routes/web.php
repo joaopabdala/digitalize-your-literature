@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DigitalizationProcessorController;
 use App\Http\Controllers\DigitalizerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDashboard;
@@ -27,7 +28,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('dashboard/{digitalizationBatch}', [UserDashboard::class, 'show'])->name('dashboard.digitalizationBatch');
 });
 
-Route::post('digitalize', [DigitalizerController::class, 'digitalizes'])->name('digitalize');
+Route::post('digitalize', [DigitalizationProcessorController::class, 'digitalizes'])->name('digitalize');
 Route::get('digitalize/{digitalizationBatchHash}', [DigitalizerController::class, 'show'])->name('digitalize.show');
 Route::get('digitalize/pdf-download/{digitalizationBatch}', [DigitalizerController::class, 'downloadPDF'])->name('digitalize.pdf');
 Route::delete('digitalize/{digitalizationBatch}', [DigitalizerController::class, 'destroy'])->name('digitalize.destroy');
