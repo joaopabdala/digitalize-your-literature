@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\MountPagesDataFromDigitalizationBatch;
+use App\Actions\MountPagesDataFromDigitalizationBatchAction;
+use App\Exceptions\InvalidPageDataException;
 use App\Models\DigitalizationBatch;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -29,7 +30,11 @@ class DigitalizerController extends Controller
         }
 
         try {
-            $pages = (new MountPagesDataFromDigitalizationBatch)->execute($digitalizationBatch);
+            try {
+                $pages = (new MountPagesDataFromDigitalizationBatchAction)->execute($digitalizationBatch);
+            } catch (InvalidPageDataException $e) {
+                return view('errors.custom', ['message' => $e->getMessage()]);
+            }
             $html = view('pdf.document_template', compact('pages'))->render();
             $pdf = Pdf::loadHtml($html);
             $baseFileName = pathinfo($digitalizationBatch->title, PATHINFO_FILENAME);
@@ -47,14 +52,18 @@ class DigitalizerController extends Controller
     {
         $digitalizationBatch = DigitalizationBatch::where('folder_path', $digitalizationBatchHash)->firstOrFail();
 
-        if(!Gate::authorize('view', $digitalizationBatch)) {
+        if (!Gate::authorize('view', $digitalizationBatch)) {
             abort(403, 'Unauthorized');
         };
 
-        $pages = (new MountPagesDataFromDigitalizationBatch)->execute($digitalizationBatch);
+        try {
+            $pages = (new MountPagesDataFromDigitalizationBatchAction)->execute($digitalizationBatch);
+        } catch (InvalidPageDataException $e) {
+            return view('errors.custom', ['message' => $e->getMessage()]);
+        }
+
 
         return view('scan-result', compact('pages', 'digitalizationBatch'));
-
     }
 
     public function destroy(DigitalizationBatch $digitalizationBatch)
