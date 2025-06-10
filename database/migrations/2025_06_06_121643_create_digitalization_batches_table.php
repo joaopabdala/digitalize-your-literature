@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('digitalization_batches', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->string('folder_path')->nullable();
             $table->timestamps();
         });
 
         Schema::table('digitalizations', function (Blueprint $table) {
-            $table->foreignId('digitalization_batch_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('digitalization_batch_id')->nullable()->constrained()->cascadeOnDelete();
         });
     }
 

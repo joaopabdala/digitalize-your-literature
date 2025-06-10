@@ -3,9 +3,12 @@
 use App\Http\Controllers\DigitalizerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDashboard;
+use App\Models\DigitalizationBatch;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
+
     return view('index');
 })->name('index');
 

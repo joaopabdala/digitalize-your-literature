@@ -35,6 +35,5 @@ class UserDashboard extends Controller
         $pages = (new MountPagesDataFromDigitalizationBatch)->execute($digitalizationBatch);
 
         return view('scan-result', compact('pages', 'digitalizationBatch'));
-
     }
 }
