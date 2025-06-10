@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\DigitalizationBatch;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -28,5 +29,13 @@ class DeleteTempFilesJob implements ShouldQueue
         if (Storage::disk('public')->exists('temp_digitalizations')) {
             Storage::disk('public')->deleteDirectory('temp_digitalizations');
         }
+
+        DigitalizationBatch::whereNull('user_id')->chunkById(100,function ($digitalizationBatches) {
+            foreach ($digitalizationBatches as $digitalizationBatch) {
+                Storage::disk('public')->deleteDirectory($digitalizationBatch->folder_path);
+                $digitalizationBatch->delete();
+            }
+        });
+
     }
 }

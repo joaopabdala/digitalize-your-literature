@@ -22,7 +22,8 @@ class DigitalizerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => 'required|file|mimes:jpeg,jpg,png,pdf',
+            'file' => 'required|array',
+            'file.*' => 'required|file|mimes:jpeg,jpg,png,pdf'
         ];
     }
 }

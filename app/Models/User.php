@@ -51,4 +51,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Digitalization::class);
     }
+
+    public function digitalizationBatches(): HasMany
+    {
+        return $this->hasMany(DigitalizationBatch::class);
+    }
 }

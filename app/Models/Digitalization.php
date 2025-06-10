@@ -20,4 +20,9 @@ class Digitalization extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function batch()
+    {
+        return $this->belongsTo(DigitalizationBatch::class, 'digitalization_batch_id');
+    }
 }

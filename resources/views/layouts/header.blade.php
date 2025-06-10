@@ -7,8 +7,6 @@
         <nav>
             <ul class="flex space-x-6">
                 <li><a href="/" class="hover:text-gray-300 transition duration-300 ease-in-out">Home</a></li>
-                <li><a href="/about" class="hover:text-gray-300 transition duration-300 ease-in-out">About</a></li>
-                <li><a href="/contact" class="hover:text-gray-300 transition duration-300 ease-in-out">Contact</a></li>
 
                 @guest
                     <li><a href="{{ route('login') }}" class="hover:text-gray-300 transition duration-300 ease-in-out">Login</a></li>

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Actions\ExtractPlaintTextFromJsonAction;
+use App\Actions\MountPagesDataFromDigitalizationBatch;
 use App\Models\Digitalization;
+use App\Models\DigitalizationBatch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use function abort;
@@ -19,26 +21,19 @@ class UserDashboard extends Controller
     public function index()
     {
         $user = auth()->user();
-        $digitalizations = $user->digitalizations()->paginate(8);
+        $digitalizationBatches = $user->digitalizationBatches()->paginate(8);
 
-        return view('auth.user-dashboard', compact('digitalizations'));
+        return view('auth.user-dashboard', compact('digitalizationBatches'));
     }
 
-    public function show(Digitalization $digitalization)
+    public function show(DigitalizationBatch $digitalizationBatch)
     {
-        if (!auth()->user()->can('view', $digitalization)) {
+        if (!auth()->user()->can('view', $digitalizationBatch)) {
             abort(403, 'Unauthorized');
         }
 
-        $imageUrl = Storage::url($digitalization->original_file_path);
-        $transcriptionPath = $digitalization->transcription_file_path;
-        $jsonContent = Storage::disk('public')->get($transcriptionPath);
-        $pageData = json_decode($jsonContent, true);
+        $pages = (new MountPagesDataFromDigitalizationBatch)->execute($digitalizationBatch);
 
-        $pageData = $pageData['page'];
-        $plainText = (new ExtractPlaintTextFromJsonAction)->execute($pageData);
-
-        return view('scan-result', compact('pageData', 'plainText', 'imageUrl', 'digitalization'));
-
+        return view('scan-result', compact('pages', 'digitalizationBatch'));
     }
 }
