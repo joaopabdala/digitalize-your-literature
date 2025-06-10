@@ -22,6 +22,7 @@ use function json_encode;
 use function now;
 use function pathinfo;
 use function redirect;
+use function round;
 use function str_replace;
 use function uniqid;
 use function view;
@@ -53,7 +54,16 @@ class DigitalizerController extends Controller
             $digitalizer = DigitalizesFactory::make();
 
             try {
+                $startTime = microtime(true);
+
                 $parsedContent = $digitalizer->returnJson($file);
+
+                $endTime = microtime(true);
+                $duration = ($endTime - $startTime);
+
+                Log::info('Processing time for file ' . $file->getPathname() . ': ' . round($duration, 4) . ' seconds');
+//                Log::info('Processing time for file ' . $file->getPathname() . ': ' . round($duration, 4) . ' seconds');
+
 
                 if ($parsedContent instanceof \Illuminate\Http\RedirectResponse) {
                     return $parsedContent;
