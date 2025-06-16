@@ -5,14 +5,15 @@ namespace App\Factories;
 use App\Adapter\GeminiAdapter;
 use function config;
 
-class DigitalizesFactory{
+class DigitalizesFactory
+{
     public static function make()
     {
-        $provider = config('ai-service.provider');
+        $provider = config('ocr-service.provider');
 
-       return match($provider){
-           'gemini' => new GeminiAdapter(),
-           default => throw new \Exception("Provider '{$provider}' not supported")
-       };
+        return match ($provider) {
+            'gemini' => new GeminiAdapter(),
+            default => throw new \Exception("Provider '{$provider}' not supported")
+        };
     }
 }

@@ -20,11 +20,10 @@ class GeminiService
 
     public function __construct()
     {
-        $apiKey = config('ai-service.ai_api_key');
+        $apiKey = config('ocr-service.ai_api_key');
         $this->httpClient = Http::withHeaders([
             'Content-Type' => 'application/json',
         ]);
-
         $this->endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}";
 
     }
@@ -38,7 +37,7 @@ class GeminiService
                     'parts' => [
                         [
                             'text' => 'Transcreva o conteúdo textual da imagem. A imagem representa uma página de livro ou revista.
-Concentre-se **exclusivamente no conteúdo principal da página**, ignorando elementos das margens, rodapés ou cabeçalhos que não sejam o título do livro/capítulo e imagens.
+Concentre-se **exclusivamente no conteúdo principal da página**, não levando em conta o vazamento de conteúdo de páginas pela metade que possam estar na beirada da imagem, ignorando elementos das margens, rodapés ou cabeçalhos que não sejam o título do livro/capítulo e imagens.
 
 O resultado deve ser um objeto JSON formatado rigorosamente conforme o exemplo fornecido.
 Para cada página detectada, o JSON deve conter um objeto "page" com as seguintes chaves:
@@ -51,7 +50,7 @@ Para cada página detectada, o JSON deve conter um objeto "page" com as seguinte
 
 **Instruções detalhadas para "paragraphs":**
 
-1.  **Preservação da Estrutura**: Mantenha a estrutura original do texto o máximo possível, respeitando a separação lógica dos parágrafos.
+1.  **Preservação da Estrutura**: Mantenha a estrutura original do texto o máximo possível, respeitando a separação lógica dos parágrafos, mas certifique-se de que as quebras de linhas não sejam interpretadas como diferentes parágrafos erronemante.
 2.  **Remoção de Caracteres Especiais**: **Remova estritamente** quaisquer caracteres de nova linha (`\n`) e tabulação (`\t`) do texto dos parágrafos. Eles não devem aparecer no JSON final. Esse tipo de será lidada na separação por parágrafos.
 3.  **Diálogos/Entrevistas**: Se houver diálogos ou entrevistas com nomes de falantes (ex: "Nome do Falante: Texto"), o nome do falante deve ser tratado como um novo parágrafo.
 4.  **Conteúdo Faltante**: Se alguma das informações solicitadas (título, subtítulo, etc.) não for encontrada na imagem, seu valor correspondente no JSON deve ser **null**.
