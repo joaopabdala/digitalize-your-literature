@@ -3,11 +3,23 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
+use function response;
 
 class InvalidPageDataException extends Exception
 {
-    public function __construct($message = "Os dados da página são inválidos ou estão ausentes.", $code = 0, Exception $previous = null)
+    public function report(): void
     {
-        parent::__construct($message, $code, $previous);
+        Log::error('Invalid Page Data', ['exception' => $this]);
+    }
+
+    /**
+     * Render the exception as an HTTP response.
+     */
+    public function render(Request $request): Response
+    {
+        return response()->view('errors.custom', ['message' => $this->message], 400);
     }
 }

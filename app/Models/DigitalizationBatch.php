@@ -26,7 +26,7 @@ class DigitalizationBatch extends Model
 
     public function getImageUrlCover(): string
     {
-        return $this->digitalizations[0]->original_file_path;
+        return $this->digitalizations[0]->original_file_path ?? '';
     }
 
 }
