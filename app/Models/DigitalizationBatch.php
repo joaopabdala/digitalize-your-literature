@@ -14,6 +14,8 @@ class DigitalizationBatch extends Model
         'folder_path',
     ];
 
+    public const DIGITALIZATION_DIR = 'digitalizations/';
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

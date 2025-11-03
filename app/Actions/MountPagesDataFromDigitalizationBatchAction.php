@@ -11,9 +11,11 @@ use function json_decode;
 
 class MountPagesDataFromDigitalizationBatchAction
 {
-    public function execute(DigitalizationBatch $digitalizationBatch)
+    public function execute(DigitalizationBatch $digitalizationBatch, int $perPage = 5)
     {
-        foreach ($digitalizationBatch->digitalizations as $digitalization) {
+        $digitalizations = $digitalizationBatch->digitalizations()->paginate($perPage);
+
+        $pages = $digitalizations->through(function ($digitalization) {
             $imageUrl = Storage::url($digitalization->original_file_path);
             $transcriptionPath = $digitalization->transcription_file_path;
             $jsonContent = Storage::disk('public')->get($transcriptionPath);
@@ -26,12 +28,12 @@ class MountPagesDataFromDigitalizationBatchAction
 
             $plainText = (new ExtractPlaintTextFromJsonAction)->execute($pageData);
 
-            $pages[] = [
+            return [
                 'imageUrl' => $imageUrl,
                 'pageData' => $pageData,
                 'plainText' => $plainText,
             ];
-        }
+        });
 
         return $pages;
     }

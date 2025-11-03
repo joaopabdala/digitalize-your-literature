@@ -15,7 +15,6 @@ class UserDashboard extends Controller
     {
         $user = auth()->user();
         $digitalizationBatches = $user->digitalizationBatches()->paginate(8);
-
         return view('auth.user-dashboard', compact('digitalizationBatches'));
     }
 
@@ -24,7 +23,6 @@ class UserDashboard extends Controller
         if (!auth()->user()->can('view', $digitalizationBatch)) {
             abort(403, 'Unauthorized');
         }
-
         $pages = (new MountPagesDataFromDigitalizationBatchAction)->execute($digitalizationBatch);
         return view('scan-result', compact('pages', 'digitalizationBatch'));
     }

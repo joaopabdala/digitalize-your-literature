@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class DeleteTempFilesJob implements ShouldQueue
@@ -30,12 +31,12 @@ class DeleteTempFilesJob implements ShouldQueue
             Storage::disk('public')->deleteDirectory('temp_digitalizations');
         }
 
-        DigitalizationBatch::whereNull('user_id')->chunkById(100,function ($digitalizationBatches) {
+        DigitalizationBatch::whereNull('user_id')->chunkById(100, function ($digitalizationBatches) {
             foreach ($digitalizationBatches as $digitalizationBatch) {
-                Storage::disk('public')->deleteDirectory($digitalizationBatch->folder_path);
+                Storage::disk('public')->deleteDirectory(DigitalizationBatch::DIGITALIZATION_DIR . $digitalizationBatch->folder_path);
+                Log::info(DigitalizationBatch::DIGITALIZATION_DIR . $digitalizationBatch->folder_path);
                 $digitalizationBatch->delete();
             }
         });
-
     }
 }

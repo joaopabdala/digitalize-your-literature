@@ -2,47 +2,121 @@
 
 namespace App\Actions;
 
-
+use Exception;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Imagick;
 
 class ConvertPDFtoImageAction
 {
+    private const DPI = 150;
+    private const COMPRESSION_QUALITY = 30;
+    private const MAX_WIDTH = 2000;
+    private const OUTPUT_FORMAT = 'jpg';
+
     public function execute(UploadedFile $file): array
     {
+        ini_set('memory_limit', '2048M');
+
         $tempDir = storage_path('app/temp/pdf_images_' . Str::random(8));
-        if (!file_exists($tempDir)) {
-            mkdir($tempDir, 0755, true);
-        }
+        File::makeDirectory($tempDir, 0755, true);
+
+        $pdfPath = $file->getRealPath();
+
+        Log::info("Processing PDF: {$file->getClientOriginalName()} ({$file->getSize()} bytes)");
 
         $imagick = new Imagick();
-        $imagick->setResolution(150, 150);
-        $imagick->readImage($file->getRealPath());
-
-        $uploadedFiles = [];
-
-        foreach ($imagick as $index => $page) {
-            $page->setImageFormat('png');
-            $filename = "page_{$index}.png";
-            $filepath = $tempDir . DIRECTORY_SEPARATOR . $filename;
-
-            // Salva a imagem temporariamente no disco
-            $page->writeImage($filepath);
-
-            // Cria uma instância de UploadedFile
-            $uploadedFiles[] = new UploadedFile(
-                $filepath,
-                $filename,
-                'image/png',
-                null,
-                true // $testMode para evitar erros no Laravel
-            );
-        }
-
+        $imagick->pingImage($pdfPath);
+        $pageCount = $imagick->getNumberImages();
         $imagick->clear();
         $imagick->destroy();
 
+        Log::info("PDF has {$pageCount} pages");
+
+        $uploadedFiles = [];
+
+        for ($pageNum = 0; $pageNum < $pageCount; $pageNum++) {
+            try {
+                $imagick = new Imagick();
+
+                $imagick->setResolution(self::DPI, self::DPI);
+                $imagick->setColorspace(Imagick::COLORSPACE_RGB);
+
+                $imagick->readImage("{$pdfPath}[{$pageNum}]");
+
+                Log::info("Processing page {$pageNum}...");
+                Log::info("Colorspace: " . $imagick->getImageColorspace());
+                Log::info("Dimensions: " . $imagick->getImageWidth() . "x" . $imagick->getImageHeight());
+
+                $imagick->setImageBackgroundColor('white');
+                $imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
+
+                if ($imagick->getImageColorspace() !== Imagick::COLORSPACE_RGB) {
+                    Log::info("Converting colorspace to RGB");
+                    $imagick->transformImageColorspace(Imagick::COLORSPACE_RGB);
+                }
+
+                $imagick = $imagick->flattenImages();
+
+                $imagick->setImageFormat(self::OUTPUT_FORMAT);
+
+                $width = $imagick->getImageWidth();
+                $height = $imagick->getImageHeight();
+
+                Log::info("Final dimensions before resize: {$width}x{$height}");
+
+                if ($width > self::MAX_WIDTH) {
+                    $newHeight = (int)(($height / $width) * self::MAX_WIDTH);
+                    $imagick->resizeImage(
+                        self::MAX_WIDTH,
+                        $newHeight,
+                        Imagick::FILTER_LANCZOS,
+                        1
+                    );
+                    Log::info("Resized to: " . self::MAX_WIDTH . "x{$newHeight}");
+                }
+
+                $imagick->stripImage();
+                $imagick->setImageCompression(Imagick::COMPRESSION_JPEG);
+                $imagick->setImageCompressionQuality(self::COMPRESSION_QUALITY);
+
+                $imagick->normalizeImage();
+
+                $filename = "page_{$pageNum}." . self::OUTPUT_FORMAT;
+                $filepath = $tempDir . DIRECTORY_SEPARATOR . $filename;
+
+                $imagick->writeImage($filepath);
+
+                $fileSize = filesize($filepath);
+                Log::info("Created {$filename} ({$fileSize} bytes)");
+
+                if ($fileSize < 1000) {
+                    Log::warning("Image file is suspiciously small!");
+                }
+
+                $uploadedFiles[] = new UploadedFile(
+                    $filepath,
+                    $filename,
+                    'image/' . self::OUTPUT_FORMAT,
+                    null,
+                    true
+                );
+
+                $imagick->clear();
+                $imagick->destroy();
+
+                gc_collect_cycles();
+
+            } catch (Exception $e) {
+                Log::error("Error processing page {$pageNum}: " . $e->getMessage());
+                Log::error($e->getTraceAsString());
+                throw $e;
+            }
+        }
+
         return $uploadedFiles;
     }
+
 }
