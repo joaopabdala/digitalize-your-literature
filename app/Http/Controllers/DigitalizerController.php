@@ -63,9 +63,8 @@ class DigitalizerController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $digitalizationFolderPath = 'digitalizations/';
         try {
-            Storage::disk('public')->deleteDirectory($digitalizationFolderPath . $digitalizationBatch->folder_path);
+            Storage::disk('public')->deleteDirectory(DigitalizationBatch::DIGITALIZATION_DIR . $digitalizationBatch->folder_path);
 
             $digitalizationBatch->delete();
 

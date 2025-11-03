@@ -12,7 +12,8 @@
             <div>
                 <label for="file" class="block text-sm font-medium text-gray-700 mb-1">Choose file</label>
                 <input multiple name="file[]" type="file" id="file"
-                       class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                       class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       required>
             </div>
 
             <button type="submit"
@@ -22,7 +23,8 @@
         </form>
 
         <!-- Loading Overlay -->
-        <div id="loading-overlay" class="hidden fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
+        <div id="loading-overlay"
+             class="hidden fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
             <div class="text-xl font-semibold text-blue-700 animate-pulse">
                 Processando arquivo, por favor aguarde...
             </div>

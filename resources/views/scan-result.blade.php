@@ -99,6 +99,7 @@
                 @endauth
             </div>
 
+            {{$pages->links()}}
 
             {{-- Back Button --}}
             <div class="text-center">

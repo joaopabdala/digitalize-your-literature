@@ -32,7 +32,6 @@ class DigitalizationProcessorController extends Controller
         $belongsToUser = auth()->check();
 
         $batch = $this->createBatch($files, $folderUniqueId, $userId, $belongsToUser);
-
         $files = $this->expandAndFilterFiles($files);
 
         foreach ($files as $file) {
@@ -101,7 +100,7 @@ class DigitalizationProcessorController extends Controller
 
     private function storeResults(UploadedFile $file, $jsonData, DigitalizationBatch $batch, string $folderId, ?int $userId): void
     {
-        $folderPath = "digitalizations/{$folderId}";
+        $folderPath = DigitalizationBatch::DIGITALIZATION_DIR . $folderId;
         $json = json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $jsonName = $file->hashName() . '.json';
 

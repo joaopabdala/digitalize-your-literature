@@ -37,7 +37,7 @@ class GeminiService
                     'parts' => [
                         [
                             'text' => 'Transcreva o conteúdo textual da imagem. A imagem representa uma página de livro ou revista.
-Concentre-se **exclusivamente no conteúdo principal da página**, não levando em conta o vazamento de conteúdo de páginas pela metade que possam estar na beirada da imagem, ignorando elementos das margens, rodapés ou cabeçalhos que não sejam o título do livro/capítulo e imagens.
+Concentre-se **exclusivamente no conteúdo principal da página**, não levando em conta o vazamento de conteúdo de páginas pela metade que possam estar na beirada da imagem, ignorando elementos das margens, rodapés ou cabeçalhos que não sejam o título do livro/capítulo e imagens. Se assegure de que a página recortada que pode aparecer do lado da principal não seja processada, causando ruído.
 
 O resultado deve ser um objeto JSON formatado rigorosamente conforme o exemplo fornecido.
 Para cada página detectada, o JSON deve conter um objeto "page" com as seguintes chaves:
