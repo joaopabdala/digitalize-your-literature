@@ -11,7 +11,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use function array_merge;
-use function auth;
+use function array_unique;
+use function dirname;
 use function is_array;
 use function json_encode;
 use function microtime;
@@ -26,25 +27,30 @@ class DigitalizationProcessorController extends Controller
 {
     public function digitalizes(DigitalizerRequest $request)
     {
-        $files = $request->validated()['file'];
+        $filePaths = $request->validated()['file'];
         $folderUniqueId = $this->generateFolderUniqueId();
         $userId = auth()->id();
         $belongsToUser = auth()->check();
-
-        $batch = $this->createBatch($files, $folderUniqueId, $userId, $belongsToUser);
-        $files = $this->expandAndFilterFiles($files);
-
-        foreach ($files as $file) {
+        $batch = $this->createBatch($filePaths, $folderUniqueId, $userId, $belongsToUser);
+        $filesTempUpload = $this->expandAndFilterFiles($filePaths);
+        foreach ($filesTempUpload as $file) {
             $this->processFile($file, $batch, $folderUniqueId, $userId);
         }
+        $tempFolderNames = array_map(function ($file) {
+            $absoluteDirPath = $file->getPath();
+            return basename($absoluteDirPath);
+        }, $filesTempUpload);
+
+        $tempFolderNames = array_unique($tempFolderNames);
+        $this->deleteTemporaryFiles($filePaths, $tempFolderNames);
 
         return redirect()->route('digitalize.show', ['digitalizationBatchHash' => $batch->folder_path]);
     }
 
 
-    private function verifyIfIsPDF(UploadedFile $file)
+    private function verifyIfIsPDF(string $filePath)
     {
-        $mimeType = $file->getClientMimeType();
+        $mimeType = Storage::disk('local')->mimeType($filePath);
         return $mimeType === 'application/pdf';
     }
 
@@ -56,7 +62,7 @@ class DigitalizationProcessorController extends Controller
     private function createBatch(array $files, string $folderPath, ?int $userId, bool $belongsToUser)
     {
         return DigitalizationBatch::create([
-            'title' => $files[0]->getClientOriginalName() ?? 'undefined title',
+            'title' => pathinfo($files[0], PATHINFO_FILENAME) ?? 'undefined title',
             'folder_path' => $folderPath,
             'user_id' => $userId,
             'belongs_to_user' => $belongsToUser,
@@ -70,6 +76,7 @@ class DigitalizationProcessorController extends Controller
         foreach ($files as $key => $file) {
             if ($this->verifyIfIsPDF($file)) {
                 $converted = (new ConvertPDFtoImageAction)->execute($file);
+
                 if (is_array($converted)) {
                     $extraFiles = array_merge($extraFiles, $converted);
                     unset($files[$key]);
@@ -89,7 +96,7 @@ class DigitalizationProcessorController extends Controller
             $this->logProcessingTime($file, $start);
 
             if ($parsed instanceof \Illuminate\Http\RedirectResponse) {
-                redirect()->back(); // Ou qualquer redirecionamento que faça sentido
+                redirect()->back();
             }
 
             $this->storeResults($file, $parsed, $batch, $folderId, $userId);
@@ -112,6 +119,27 @@ class DigitalizationProcessorController extends Controller
             'transcription_file_path' => "{$folderPath}/json_outputs/{$jsonName}",
             'user_id' => $userId,
         ]);
+    }
+
+    private function deleteTemporaryFiles(array $filePaths, array $filesTempUpload): void
+    {
+        foreach ($filePaths as $filePath) {
+            try {
+
+                Storage::disk('local')->deleteDirectory(dirname($filePath));
+                Log::info("Pasta temporária deletada: {$filePath}");
+            } catch (Exception $e) {
+                Log::error("Erro ao deletar arquivo {$e->getMessage()}");
+            }
+        }
+        foreach ($filesTempUpload as $fileTempUpload) {
+            try {
+                Storage::disk('local')->deleteDirectory('temp/' . $fileTempUpload);
+                Log::info("Pasta temporária deletada: {$fileTempUpload}");
+            } catch (Exception $e) {
+                Log::error("Erro ao deletar arquivo {$e->getMessage()}");
+            }
+        };
     }
 
     private function logProcessingTime(UploadedFile $file, float $start): void
