@@ -7,11 +7,11 @@ use App\Factories\DigitalizesFactory;
 use App\Http\Requests\DigitalizerRequest;
 use App\Models\DigitalizationBatch;
 use Exception;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use function array_merge;
-use function array_unique;
+use function basename;
 use function dirname;
 use function is_array;
 use function json_encode;
@@ -36,13 +36,16 @@ class DigitalizationProcessorController extends Controller
         foreach ($filesTempUpload as $file) {
             $this->processFile($file, $batch, $folderUniqueId, $userId);
         }
-        $tempFolderNames = array_map(function ($file) {
-            $absoluteDirPath = $file->getPath();
-            return basename($absoluteDirPath);
-        }, $filesTempUpload);
-
-        $tempFolderNames = array_unique($tempFolderNames);
-        $this->deleteTemporaryFiles($filePaths, $tempFolderNames);
+//        $tempFolderNames = array_map(function ($file) {
+//            if (is_string($file)) {
+//                return basename($file);
+//            };
+//            $absoluteDirPath = $file->getPath();
+//            return basename($absoluteDirPath);
+//        }, $filesTempUpload);
+//
+//        $tempFolderNames = array_unique($tempFolderNames);
+//        $this->deleteTemporaryFiles($filePaths, $tempFolderNames);
 
         return redirect()->route('digitalize.show', ['digitalizationBatchHash' => $batch->folder_path]);
     }
@@ -87,35 +90,46 @@ class DigitalizationProcessorController extends Controller
         return array_merge($files, $extraFiles);
     }
 
-    private function processFile(UploadedFile $file, DigitalizationBatch $batch, string $folderId, ?int $userId): void
+    private function processFile(string $filePath, DigitalizationBatch $batch, string $folderId, ?int $userId): void
     {
         try {
             $start = microtime(true);
             $digitalizer = DigitalizesFactory::make();
-            $parsed = $digitalizer->returnJson($file);
-            $this->logProcessingTime($file, $start);
+            $parsed = $digitalizer->returnJson($filePath);
+            $this->logProcessingTime($filePath, $start);
 
             if ($parsed instanceof \Illuminate\Http\RedirectResponse) {
                 redirect()->back();
             }
 
-            $this->storeResults($file, $parsed, $batch, $folderId, $userId);
+            $this->storeResults($filePath, $parsed, $batch, $folderId, $userId);
         } catch (Exception $e) {
-            Log::error("Erro ao processar arquivo {$file->getClientOriginalName()}: " . $e->getMessage());
+            Log::error("Erro ao processar arquivo {$filePath}: " . $e->getMessage());
         }
     }
 
-    private function storeResults(UploadedFile $file, $jsonData, DigitalizationBatch $batch, string $folderId, ?int $userId): void
+    private function storeResults(string $filePath, $jsonData, DigitalizationBatch $batch, string $folderId, ?int $userId): void
     {
+        $fileHashName = Str::random(40);
+
+        $fileNameWithExtension = basename($filePath);
+        $extension = pathinfo($fileNameWithExtension, PATHINFO_EXTENSION);
+
         $folderPath = DigitalizationBatch::DIGITALIZATION_DIR . $folderId;
         $json = json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        $jsonName = $file->hashName() . '.json';
+
+        $jsonName = "{$fileHashName}.json";
 
         Storage::disk('public')->put("{$folderPath}/json_outputs/{$jsonName}", $json);
-        $originalPath = $file->storeAs("{$folderPath}/original_files", $file->hashName(), 'public');
+
+        $newFileName = "{$fileHashName}.{$extension}";
+        $destinationPath = "{$folderPath}/original_files/{$newFileName}";
+
+        Storage::disk('public')->put($destinationPath, Storage::disk('local')->get($filePath));
+
 
         $batch->digitalizations()->create([
-            'original_file_path' => $originalPath,
+            'original_file_path' => $destinationPath,
             'transcription_file_path' => "{$folderPath}/json_outputs/{$jsonName}",
             'user_id' => $userId,
         ]);
@@ -142,9 +156,9 @@ class DigitalizationProcessorController extends Controller
         };
     }
 
-    private function logProcessingTime(UploadedFile $file, float $start): void
+    private function logProcessingTime(string $file, float $start): void
     {
         $duration = round(microtime(true) - $start, 4);
-        Log::info("Tempo para processar {$file->getPathname()}: {$duration} segundos");
+        Log::info("Tempo para processar {$file}: {$duration} segundos");
     }
 }
