@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="flex justify-center items-center min-h-screen bg-gray-100 relative">
-        <form id="upload-form" action="{{route('digitalize')}}" method="POST" enctype="multipart/form-data"
+        <form id="upload-form" action="{{route('digitalize.job')}}" method="POST" enctype="multipart/form-data"
               class="bg-white p-8 rounded-lg shadow-md w-full max-w-md space-y-6">
             @csrf
             @method('post')
