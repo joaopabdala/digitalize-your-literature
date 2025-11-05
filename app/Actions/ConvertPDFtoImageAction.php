@@ -3,7 +3,6 @@
 namespace App\Actions;
 
 use Exception;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -101,13 +100,7 @@ class ConvertPDFtoImageAction
                     Log::warning("Image file is suspiciously small!");
                 }
 
-                $uploadedFiles[] = new UploadedFile(
-                    $filepath,
-                    $filename,
-                    'image/' . self::OUTPUT_FORMAT,
-                    null,
-                    true
-                );
+                $uploadedFiles[] = $tempDirRelative . DIRECTORY_SEPARATOR . $filename;
 
                 $imagick->clear();
                 $imagick->destroy();

@@ -19,9 +19,9 @@ class GeminiAdapter implements DigitalizesInterface
         $this->service = (new GeminiService);
     }
 
-    public function returnJson($file)
+    public function returnJson(string $filePath)
     {
-        $response = $this->service->returnJson($file);
+        $response = $this->service->returnJson($filePath);
 
         if ($response instanceof \Illuminate\Http\JsonResponse) {
             $response = $response->getData(true);

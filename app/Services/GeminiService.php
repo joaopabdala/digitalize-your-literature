@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use Exception;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use function base64_encode;
 use function config;
 use function report;
@@ -28,9 +28,11 @@ class GeminiService
 
     }
 
-    public function returnJson(UploadedFile $file)
+    public function returnJson(string $filePath)
     {
-        $imageData = base64_encode(file_get_contents($file));
+        $fileContents = Storage::disk('local')->get($filePath);
+        $mimeType = Storage::disk('local')->mimeType($filePath);
+        $imageData = base64_encode($fileContents);
         try {
             $response = $this->httpClient->post($this->endpoint, [
                 'contents' => [[
@@ -88,7 +90,7 @@ Se a imagem contiver múltiplas páginas, o JSON deve ser um array de objetos "p
                         ],
                         [
                             'inline_data' => [
-                                'mime_type' => $file->getMimeType(),
+                                'mime_type' => $mimeType,
                                 'data' => $imageData,
                             ]
                         ]
