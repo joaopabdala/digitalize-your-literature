@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DigitalizationProcessorController;
 use App\Http\Controllers\DigitalizerController;
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDashboard;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,8 @@ Route::get('/', function () {
 
     return view('index');
 })->name('index');
+
+Route::post('/upload', UploadController::class)->name('upload');
 
 Route::get('register', function () {
     return view('auth.register');

@@ -4,8 +4,8 @@ namespace App\Actions;
 
 use Exception;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Imagick;
 
@@ -16,16 +16,21 @@ class ConvertPDFtoImageAction
     private const MAX_WIDTH = 2000;
     private const OUTPUT_FORMAT = 'jpg';
 
-    public function execute(UploadedFile $file): array
+    public function execute(string $filePath): array
     {
         ini_set('memory_limit', '2048M');
+        $absolutePath = Storage::disk('local')->path($filePath);
+        Log::info('File path resolved to: ' . $absolutePath);
 
-        $tempDir = storage_path('app/temp/pdf_images_' . Str::random(8));
-        File::makeDirectory($tempDir, 0755, true);
+        $tempDirRelative = 'temp/pdf_images_' . Str::random(8);
+        Storage::disk('local')->makeDirectory($tempDirRelative);
 
-        $pdfPath = $file->getRealPath();
+        $tempDirPath = Storage::disk('local')->path($tempDirRelative);
 
-        Log::info("Processing PDF: {$file->getClientOriginalName()} ({$file->getSize()} bytes)");
+        $pdfPath = $absolutePath;
+        $fileSize = Storage::disk('local')->size($filePath);
+
+        Log::info("Processing PDF: {$pdfPath} ({$fileSize} bytes)");
 
         $imagick = new Imagick();
         $imagick->pingImage($pdfPath);
@@ -85,7 +90,7 @@ class ConvertPDFtoImageAction
                 $imagick->normalizeImage();
 
                 $filename = "page_{$pageNum}." . self::OUTPUT_FORMAT;
-                $filepath = $tempDir . DIRECTORY_SEPARATOR . $filename;
+                $filepath = $tempDirPath . DIRECTORY_SEPARATOR . $filename;
 
                 $imagick->writeImage($filepath);
 
@@ -115,7 +120,6 @@ class ConvertPDFtoImageAction
                 throw $e;
             }
         }
-
         return $uploadedFiles;
     }
 
