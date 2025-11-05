@@ -27,6 +27,9 @@ Route::post('logout', [UserController::class, 'logout'])->name('logout');
 Route::group(['middleware' => 'auth'], function () {
     Route::get('dashboard', [UserDashboard::class, 'index'])->name('dashboard');
     Route::get('dashboard/{digitalizationBatch}', [UserDashboard::class, 'show'])->name('dashboard.digitalizationBatch');
+    Route::post('digitalize/{digitalization}', [DigitalizationProcessorController::class, 'reDigitalize'])->name('reDigitalize');
+
+
 });
 
 Route::post('digitalize', [DigitalizationProcessorController::class, 'digitalizes'])->name('digitalize');
