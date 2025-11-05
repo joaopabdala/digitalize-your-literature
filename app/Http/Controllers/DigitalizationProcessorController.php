@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Actions\ConvertPDFtoImageAction;
 use App\Factories\DigitalizesFactory;
 use App\Http\Requests\DigitalizerRequest;
+use App\Models\Digitalization;
 use App\Models\DigitalizationBatch;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use function abort;
 use function array_merge;
+use function auth;
+use function back;
 use function basename;
 use function dirname;
 use function is_array;
@@ -36,18 +40,45 @@ class DigitalizationProcessorController extends Controller
         foreach ($filesTempUpload as $file) {
             $this->processFile($file, $batch, $folderUniqueId, $userId);
         }
-//        $tempFolderNames = array_map(function ($file) {
-//            if (is_string($file)) {
-//                return basename($file);
-//            };
-//            $absoluteDirPath = $file->getPath();
-//            return basename($absoluteDirPath);
-//        }, $filesTempUpload);
-//
-//        $tempFolderNames = array_unique($tempFolderNames);
-//        $this->deleteTemporaryFiles($filePaths, $tempFolderNames);
+        $tempFolderNames = array_map(function ($file) {
+            if (is_string($file)) {
+                return basename($file);
+            };
+            $absoluteDirPath = $file->getPath();
+            return basename($absoluteDirPath);
+        }, $filesTempUpload);
+
+        $tempFolderNames = array_unique($tempFolderNames);
+        $this->deleteTemporaryFiles($filePaths, $tempFolderNames);
 
         return redirect()->route('digitalize.show', ['digitalizationBatchHash' => $batch->folder_path]);
+    }
+
+    public function reDigitalize(Digitalization $digitalization)
+    {
+
+        if (!auth()->user()->can('view', $digitalization)) {
+            abort(403, 'Unauthorized');
+        }
+        $imagePath = $digitalization->original_file_path;
+        $jsonPath = $digitalization->transcription_file_path;
+        try {
+            $start = microtime(true);
+            $digitalizer = DigitalizesFactory::make();
+            $jsonData = $digitalizer->returnJson($imagePath, 'public');
+            $this->logProcessingTime($imagePath, $start);
+            if ($jsonData instanceof \Illuminate\Http\RedirectResponse) {
+                redirect()->back();
+            }
+            $json = json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            Storage::disk('public')->put($jsonPath, $json);
+            Log::info("{$jsonPath} atualizado");
+        } catch (Exception $e) {
+            Log::error("Erro ao processar arquivo {$imagePath}: " . $e->getMessage());
+            return back()->withErrors('Erro ao processar arquivo ' . $imagePath . ': ' . $e->getMessage());
+        }
+
+        return back()->with(['success' => 'Arquivo atualizado com sucesso']);
     }
 
 

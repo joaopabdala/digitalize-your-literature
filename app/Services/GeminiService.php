@@ -28,10 +28,10 @@ class GeminiService
 
     }
 
-    public function returnJson(string $filePath)
+    public function returnJson(string $filePath, string $disk = 'local')
     {
-        $fileContents = Storage::disk('local')->get($filePath);
-        $mimeType = Storage::disk('local')->mimeType($filePath);
+        $fileContents = Storage::disk($disk)->get($filePath);
+        $mimeType = Storage::disk($disk)->mimeType($filePath);
         $imageData = base64_encode($fileContents);
         try {
             $response = $this->httpClient->post($this->endpoint, [
@@ -97,7 +97,6 @@ Se a imagem contiver múltiplas páginas, o JSON deve ser um array de objetos "p
                     ]
                 ]]
             ]);
-
             if ($response->successful()) {
                 return $response->json();
             } else {

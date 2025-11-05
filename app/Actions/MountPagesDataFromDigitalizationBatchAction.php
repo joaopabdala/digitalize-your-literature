@@ -14,7 +14,6 @@ class MountPagesDataFromDigitalizationBatchAction
     public function execute(DigitalizationBatch $digitalizationBatch, int $perPage = 5)
     {
         $digitalizations = $digitalizationBatch->digitalizations()->paginate($perPage);
-
         $pages = $digitalizations->through(function ($digitalization) {
             $imageUrl = Storage::url($digitalization->original_file_path);
             $transcriptionPath = $digitalization->transcription_file_path;
@@ -29,6 +28,7 @@ class MountPagesDataFromDigitalizationBatchAction
             $plainText = (new ExtractPlaintTextFromJsonAction)->execute($pageData);
 
             return [
+                'digitalization_id' => $digitalization->id,
                 'imageUrl' => $imageUrl,
                 'pageData' => $pageData,
                 'plainText' => $plainText,
