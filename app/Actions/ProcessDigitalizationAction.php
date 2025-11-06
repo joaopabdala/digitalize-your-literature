@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 
+use App\Events\PageProcessedEvent;
 use App\Factories\DigitalizesFactory;
 use App\Models\DigitalizationBatch;
 use Exception;
@@ -31,19 +32,22 @@ class ProcessDigitalizationAction
     public function execute(array $filePaths, DigitalizationBatch $batch, string $folderUniqueId, ?int $userId)
     {
 
-        Log::info(
-            "Job processing details:",
-            [
-                'file_paths' => $filePaths,
-                'batch_id' => $batch->id,
-                'folder_id' => $folderUniqueId,
-                'user_id' => $userId
-            ]
-        );
         $filesTempUpload = $this->expandAndFilterFiles($filePaths);
+        $pageCount = count($filesTempUpload);
+        Log::info('quantidade de paginas total: ' . $pageCount);
+        $batch->pages_count = $pageCount;
+        $batch->update();
+        foreach ($filesTempUpload as $index => $file) {
+            $digitalizationId = $this->processFile($file, $batch, $folderUniqueId, $userId);
 
-        foreach ($filesTempUpload as $file) {
-            $this->processFile($file, $batch, $folderUniqueId, $userId);
+            event(new PageProcessedEvent(
+                batchId: $batch->id,
+                processedCount: $index + 1,
+                totalImages: $pageCount,
+                pageId: $digitalizationId,
+            ));
+
+
         }
         $tempFolderNames = array_map(function ($file) {
             if (is_string($file)) {
@@ -83,7 +87,7 @@ class ProcessDigitalizationAction
         return array_merge($files, $extraFiles);
     }
 
-    private function processFile(string $filePath, DigitalizationBatch $batch, string $folderId, ?int $userId): void
+    private function processFile(string $filePath, DigitalizationBatch $batch, string $folderId, ?int $userId)
     {
         try {
             $start = microtime(true);
@@ -95,19 +99,19 @@ class ProcessDigitalizationAction
                 redirect()->back();
             }
 
-            $this->storeResults($filePath, $parsed, $batch, $folderId, $userId);
+            $digitalizationId = $this->storeResults($filePath, $parsed, $batch, $folderId, $userId);
+            return $digitalizationId;
         } catch (Exception $e) {
             Log::error("Erro ao processar arquivo {$filePath}: " . $e->getMessage());
         }
     }
 
-    private function storeResults(string $filePath, $jsonData, DigitalizationBatch $batch, string $folderId, ?int $userId): void
+    private function storeResults(string $filePath, $jsonData, DigitalizationBatch $batch, string $folderId, ?int $userId)
     {
         $fileHashName = Str::random(40);
 
         $fileNameWithExtension = basename($filePath);
         $extension = pathinfo($fileNameWithExtension, PATHINFO_EXTENSION);
-
         $folderPath = DigitalizationBatch::DIGITALIZATION_DIR . $folderId;
         $json = json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
@@ -121,11 +125,12 @@ class ProcessDigitalizationAction
         Storage::disk('public')->put($destinationPath, Storage::disk('local')->get($filePath));
 
 
-        $batch->digitalizations()->create([
+        $digitalization = $batch->digitalizations()->create([
             'original_file_path' => $destinationPath,
             'transcription_file_path' => "{$folderPath}/json_outputs/{$jsonName}",
             'user_id' => $userId,
         ]);
+        return $digitalization->id;
     }
 
     private function deleteTemporaryFiles(array $filePaths, array $filesTempUpload): void

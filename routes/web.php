@@ -34,6 +34,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 });
 
+
 Route::post('digitalize', [DigitalizationProcessorController::class, 'digitalizesJob'])->name('digitalize.job');
 Route::post('digitalize-without-job', [DigitalizationProcessorController::class, 'digitalizes'])->name('digitalize');
 

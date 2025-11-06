@@ -22,7 +22,7 @@ class GeminiAdapter implements DigitalizesInterface
     public function returnJson(string $filePath, string $disk = 'local')
     {
         $response = $this->service->returnJson($filePath, $disk);
-        
+
         if ($response instanceof \Illuminate\Http\JsonResponse) {
             $response = $response->getData(true);
         }
@@ -30,10 +30,20 @@ class GeminiAdapter implements DigitalizesInterface
         $text = data_get($response, 'candidates.0.content.parts.0.text');
         if (!$text) {
             Log::warning('A resposta do Gemini não contém a estrutura de texto esperada.', ['response' => $response]);
-
-            return back()->with(['message' => 'A resposta do Gemini não veio no formato esperado.', 'type' => 'error']);
+            $text = '```json
+                {
+                  "page": {
+                    "headerTitle": "Falha de Mock",
+                    "title": "Serviço Indisponível",
+                    "subtitle": "O conteúdo não pôde ser gerado.",
+                    "paragraphs": [
+                      "Esta é uma resposta padrão para indicar que a requisição ao Gemini falhou ou retornou um formato inesperado. Por favor, tente novamente."
+                    ],
+                    "pageNumber": null
+                  }
+                }
+                ```';
         }
-
         $jsonString = str_replace(['```json', '```', "\n"], '', $text);
 
         $parsedContent = json_decode($jsonString, true);
@@ -42,7 +52,6 @@ class GeminiAdapter implements DigitalizesInterface
             Log::error('Erro ao decodificar JSON da resposta do Gemini: ' . json_last_error_msg() . ' - String JSON: ' . $jsonString);
             return back()->with(['message' => 'Erro ao interpretar a resposta do serviço.', 'type' => 'error']);
         }
-
         return $parsedContent;
     }
 

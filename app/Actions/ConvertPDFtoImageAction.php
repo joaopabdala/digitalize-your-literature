@@ -19,7 +19,6 @@ class ConvertPDFtoImageAction
     {
         ini_set('memory_limit', '2048M');
         $absolutePath = Storage::disk('local')->path($filePath);
-        Log::info('File path resolved to: ' . $absolutePath);
 
         $tempDirRelative = 'temp/pdf_images_' . Str::random(8);
         Storage::disk('local')->makeDirectory($tempDirRelative);
@@ -50,15 +49,11 @@ class ConvertPDFtoImageAction
 
                 $imagick->readImage("{$pdfPath}[{$pageNum}]");
 
-                Log::info("Processing page {$pageNum}...");
-                Log::info("Colorspace: " . $imagick->getImageColorspace());
-                Log::info("Dimensions: " . $imagick->getImageWidth() . "x" . $imagick->getImageHeight());
 
                 $imagick->setImageBackgroundColor('white');
                 $imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
 
                 if ($imagick->getImageColorspace() !== Imagick::COLORSPACE_RGB) {
-                    Log::info("Converting colorspace to RGB");
                     $imagick->transformImageColorspace(Imagick::COLORSPACE_RGB);
                 }
 
@@ -69,7 +64,6 @@ class ConvertPDFtoImageAction
                 $width = $imagick->getImageWidth();
                 $height = $imagick->getImageHeight();
 
-                Log::info("Final dimensions before resize: {$width}x{$height}");
 
                 if ($width > self::MAX_WIDTH) {
                     $newHeight = (int)(($height / $width) * self::MAX_WIDTH);
@@ -79,7 +73,6 @@ class ConvertPDFtoImageAction
                         Imagick::FILTER_LANCZOS,
                         1
                     );
-                    Log::info("Resized to: " . self::MAX_WIDTH . "x{$newHeight}");
                 }
 
                 $imagick->stripImage();
