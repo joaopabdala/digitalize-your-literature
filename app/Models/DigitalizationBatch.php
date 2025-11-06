@@ -12,6 +12,7 @@ class DigitalizationBatch extends Model
         'user_id',
         'title',
         'folder_path',
+        'page_count'
     ];
 
     public const DIGITALIZATION_DIR = 'digitalizations/';
