@@ -30,20 +30,25 @@ class GeminiAdapter implements DigitalizesInterface
         $text = data_get($response, 'candidates.0.content.parts.0.text');
         if (!$text) {
             Log::warning('A resposta do Gemini não contém a estrutura de texto esperada.', ['response' => $response]);
-            $text = '```json
-                {
-                  "page": {
-                    "headerTitle": "Falha de Mock",
-                    "title": "Serviço Indisponível",
-                    "subtitle": "O conteúdo não pôde ser gerado.",
-                    "paragraphs": [
-                      "Esta é uma resposta padrão para indicar que a requisição ao Gemini falhou ou retornou um formato inesperado. Por favor, tente novamente."
-                    ],
-                    "pageNumber": null
-                  }
-                }
+            $text = '
+                ```json
+                                {
+                                  "page": {
+                                    "headerTitle": "Falha de Mock",
+                                    "title": "Serviço Indisponível",
+                                    "subtitle": "O conteúdo não pôde ser gerado.",
+                                    "paragraphs": [
+                                      "Esta é uma resposta \n\n\n\n \r\n \r padrão para indicar que a requisição ao Gemini falhou ou retornou um formato inesperado. Por favor, tente novamente."
+                                    ],
+                                    "pageNumber": null
+                                  }
+                                }
                 ```';
+
         }
+
+        $text = stripcslashes($text);
+        $text = trim(preg_replace('/\s\s+/', ' ', $text));
         $jsonString = str_replace(['```json', '```', "\n"], '', $text);
 
         $parsedContent = json_decode($jsonString, true);

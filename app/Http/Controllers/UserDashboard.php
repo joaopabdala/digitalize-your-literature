@@ -24,6 +24,10 @@ class UserDashboard extends Controller
             abort(403, 'Unauthorized');
         }
         $pages = (new MountPagesDataFromDigitalizationBatchAction)->execute($digitalizationBatch);
-        return view('scan-result', compact('pages', 'digitalizationBatch'));
+        $processedPages = $digitalizationBatch->digitalizations()->whereNotNull('transcription_file_path')->count();
+        $totalFiles = $digitalizationBatch->pages_count ?? 0;
+        $isComplete = $totalFiles > 0 && $processedPages === $totalFiles;
+        $channelIdentifier = $digitalizationBatch->folder_path;
+        return view('scan-result', compact('pages', 'digitalizationBatch', 'isComplete', 'totalFiles', 'channelIdentifier'));
     }
 }
