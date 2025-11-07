@@ -66,8 +66,7 @@
 
     <script>
         function copyPlainText(inputTextId) {
-            const plainTextContent = document.getElementById(inputTextId).value;
-
+            const plainTextContent = document.getElementById(inputTextId).textContent;
             const tempTextArea = document.createElement('textarea');
             tempTextArea.value = plainTextContent;
             document.body.appendChild(tempTextArea);

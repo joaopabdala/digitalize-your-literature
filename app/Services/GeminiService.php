@@ -24,7 +24,7 @@ class GeminiService
         $this->httpClient = Http::withHeaders([
             'Content-Type' => 'application/json',
         ]);
-        $this->endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}";
+        $this->endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={$apiKey}";
 
     }
 
@@ -46,6 +46,7 @@ Para cada página detectada, o JSON deve conter um objeto "page" com as seguinte
 
 - **"headerTitle"**: (string ou null) O título do livro, capítulo ou seção que aparece no cabeçalho da página (se existir).
 - **"title"**: (string ou null) O título principal da página (se houver).
+
 - **"subtitle"**: (string ou null) O subtítulo da página (se houver).
 - **"pageNumber"**: (inteiro ou null) O número da página (se detectável).
 - **"paragraphs"**: (array de strings) Uma lista de parágrafos. Cada string no array deve representar um parágrafo completo.
