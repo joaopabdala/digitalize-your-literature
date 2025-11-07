@@ -18,7 +18,7 @@ class ConvertPDFtoImageAction
     public function execute(string $filePath): array
     {
         ini_set('memory_limit', '2048M');
-        ini_set('max_execution_time', 0);
+        ini_set('max_execution_time', 1200);
         $absolutePath = Storage::disk('local')->path($filePath);
 
         $tempDirRelative = 'temp/pdf_images_' . Str::random(8);

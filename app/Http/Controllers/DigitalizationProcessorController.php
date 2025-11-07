@@ -28,6 +28,9 @@ class DigitalizationProcessorController extends Controller
     public function digitalizes(DigitalizerRequest $request)
     {
         $filePaths = $request->validated()['file'];
+        if ($this->redirectOnNullPath($filePaths)) {
+            return redirect()->route('index')->withErrors('Wait for the whole file to be uploaded before submitting');
+        };
         $folderUniqueId = $this->generateFolderUniqueId();
         $userId = auth()->id();
         $belongsToUser = auth()->check();
@@ -41,6 +44,10 @@ class DigitalizationProcessorController extends Controller
     public function digitalizesJob(DigitalizerRequest $request)
     {
         $filePaths = $request->validated()['file'];
+        if ($this->redirectOnNullPath($filePaths)) {
+            return redirect()->route('index')->withErrors('Wait for the whole file to be uploaded before submitting');
+        };
+
         $folderUniqueId = $this->generateFolderUniqueId();
         $userId = auth()->id();
         $belongsToUser = auth()->check();
@@ -97,5 +104,15 @@ class DigitalizationProcessorController extends Controller
     {
         $duration = round(microtime(true) - $start, 4);
         Log::info("Tempo para processar {$file}: {$duration} segundos");
+    }
+
+    private function redirectOnNullPath(array $filePaths)
+    {
+        foreach ($filePaths as $filePath) {
+            if ($filePath === null || empty($filePath)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
