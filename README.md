@@ -1,9 +1,7 @@
 # 📚 Digitize Your Literature
 
 **Digitize Your Literature
-** is a tool that allows you to convert book and magazine pages into digital formats. You can copy the digitized version
-to your clipboard or download it as a PDF. The goal is to make texts that were previously unavailable on digital
-platforms more accessible.
+** is a tool that allows you to convert book and magazine pages into digital formats. You can copy the digitized version to your clipboard or download it as a PDF. The goal is to make texts that were previously unavailable on digital platforms more accessible.
 ---  
 
 ## ⚙️ Initial Configuration
@@ -27,15 +25,6 @@ Follow these steps to set up your environment:
 4. Launch the development server with:
    ```bash  
    ./vendor/bin/sail npm run dev  
-   ```  
-5. Start queues:
-   ```bash  
-   ./vendor/bin/sail artisan queue:work --timeout=0
-   ```  
-
-6. Start websocket server (optionally add the --debug flag):
-   ```bash  
-   ./vendor/bin/sail artisan reverb:start
    ```  
 
 ---  

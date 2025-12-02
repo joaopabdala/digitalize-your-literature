@@ -1473,9 +1473,7 @@
 @if (session('success'))
     <div
         id="success-alert"
-        {{-- Classes de Posicionamento para o Canto Superior Direito --}}
         class="fixed top-5 right-5 z-[500]
-               {{-- Estilo Visual --}}
                bg-[#E6FFEE] border border-[#A7FFC9] text-[#008A38]
                p-4 rounded-lg my-4 shadow-xl max-w-lg w-11/12 md:w-auto"
         role="alert"
@@ -1513,7 +1511,6 @@
 @if (session('error') || $errors->any())
     <div
         id="error-alert"
-        {{-- Classes de Posicionamento (Mesmo do Sucesso) --}}
         class="fixed top-5 right-5 z-[500]
                {{-- Estilo Visual (Cores de Erro) --}}
                bg-red-100 border border-red-400 text-red-700
@@ -1531,18 +1528,9 @@
 
             <div class="flex-grow">
 
-
-                <p class="font-bold text-lg text-red-800">
-                    @if ($errors->any())
-                        Corrija os seguintes erros:
-                    @else
-                        Ops! Algo deu errado.
-                    @endif
-                </p>
-
                 @if ($errors->any())
                     <div class="alert alert-danger">
-                        <p>Por favor, corrija os seguintes erros:</p>
+                        <p>Errors:</p>
                         <ul>
                             @foreach ($errors->all() as $error)
                                 <li style="color: red">{{ $error }}</li>

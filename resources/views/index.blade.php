@@ -27,7 +27,7 @@
         <div id="loading-overlay"
              class="hidden fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
             <div class="text-xl font-semibold text-blue-700 animate-pulse">
-                Processando arquivo, por favor aguarde...
+                Wait while the file is processing...
             </div>
         </div>
     </div>
@@ -39,7 +39,8 @@
             document.getElementById('loading-overlay').classList.remove('hidden');
         });
         document.addEventListener('DOMContentLoaded', function () {
-
+            const form = document.getElementById('upload-form');
+            const inputElement = document.getElementById('file');
             FilePond.setOptions({
                 allowMultiple: true,
                 server: {
@@ -50,8 +51,25 @@
                 }
             });
 
-            const inputElement = document.getElementById('file');
             const pond = FilePond.create(inputElement);
+
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                pond.processFiles().then(() => {
+                });
+            });
+
+            pond.on('processfiles', function () {
+                const failedFiles = pond.getFiles().filter(file => file.status !== 5);
+
+                if (failedFiles.length === 0) {
+                    form.submit();
+                } else {
+                    loadingOverlay.classList.add('hidden');
+                    alert('Some files failed to upload.');
+                }
+            });
         });
     </script>
 @endsection
